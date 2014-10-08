@@ -15,19 +15,23 @@ import java.net.URISyntaxException;
 import java.util.Date;
 
 /**
- * Created by catalin@besleaga.com on 07/10/14.
+ * @author catalin@besleaga.com
+ * @author Stig@Lau.no
  */
 public class Client {
 
     public static final String PROTOCOL = "http";
-    public static final String HOST = "192.168.1.8";
+    public final String HOST;
     public static final String PATH = "/cgi-bin/luci/wisense/info";
 
     public static final String CONTENT_TYPE = "content-type";
     public static final String APPLICATION_JSON = "application/json";
 
-    public static String getContent() throws URISyntaxException, IOException {
-        String response = "";
+    public Client(String host) {
+        HOST = host;
+    }
+
+    public String getContent() throws URISyntaxException, IOException {
         HttpClient httpclient = HttpClientBuilder.create().build();
 
         URI uri = new URIBuilder()
@@ -46,22 +50,25 @@ public class Client {
         BufferedReader br = null;
         try {
             HttpResponse httpResponse = httpclient.execute(postRequest);
+            String body = "";
+
             if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
                 String readLine;
                 while (((readLine = br.readLine()) != null)) {
-                    response += readLine;
+                    body += readLine;
                 }
             }
+            return body;
 
         } finally {
             postRequest.releaseConnection();
             if (br != null) try {
                 br.close();
-            } catch (Exception ignored) {
+            } catch (Exception neverSilentlyIgnoreAnException) {
+                throw new RuntimeException(neverSilentlyIgnoreAnException);
             }
         }
 
-        return response;
     }
 }

@@ -11,19 +11,22 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 
 /**
- * Created by catalin@besleaga.com on 07/10/14.
+ * @author catalin@besleaga.com
+ * @author Stig@Lau.no
  */
 public class DataSender {
     public static final String PROTOCOL = "http";
     public static final String HOST = "iot.altrancloud.com";
     public static final String PATH = "/observe/observedsensor";
+    private static Logger logger = LoggerFactory.getLogger(DataSender.class);
 
 
     public static void send(GatewayResponse gatewayResponse) throws URISyntaxException, JSONException, IOException {
@@ -38,7 +41,7 @@ public class DataSender {
             jsonObject.put("RadioGatewayName", "192.168.1.8");
             jsonObject.put("RadioGatewayDescription", "192.168.1.8");
             jsonObject.put("Measurements", sensor.getSensorWithValues());
-            System.out.println(jsonObject.toString());
+            logger.info("From RadioGateway: {}", jsonObject.toString());
             clientSend(jsonObject.toString());
         }
     }
@@ -60,7 +63,7 @@ public class DataSender {
         HttpEntity entity = new StringEntity(request);
         postRequest.setEntity(entity);
         HttpResponse httpResponse = httpclient.execute(postRequest);
-        System.out.println(httpResponse);
+        logger.info("HTTP Response; {}", httpResponse.toString());
 
     }
 }
